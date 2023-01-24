@@ -36,7 +36,7 @@ data "template_file" "user_data" {
 }
 
 resource "aws_instance" "web" {
-  count = 4
+  count = 1
   ami                         = "ami-0a1a70369f0fce06a"
   instance_type               = "t3a.micro"
   subnet_id                   = "subnet-61bd4d07"
