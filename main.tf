@@ -3,20 +3,15 @@ resource "aws_security_group" "allow_cockpit" {
   description = "Allow cockpit inbound traffic"
   vpc_id      = "vpc-984342ff"
 
-  ingress {
-    description      = "Cockpit from VPC"
-    from_port        = 9090
-    to_port          = 9090
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description      = "SSH from VPC"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.ingress_port
+    content {
+      description      = ingress.value["description"]
+      from_port        = ingress.value["from_port"]
+      to_port          = ingress.value["to_port"]
+      protocol         = ingress.value["protocol"]
+      cidr_blocks      = ingress.value["cidr_blocks"]
+    }
   }
 
   egress {
