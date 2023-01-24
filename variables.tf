@@ -1,3 +1,7 @@
+variable "vms_count" {
+    type = number
+    default = 1
+}
 variable "ingress_port" {
     type = list(object({
       description = string
