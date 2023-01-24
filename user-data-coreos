@@ -1,0 +1,32 @@
+
+#cloud-config
+instance-id: coreos_cloudinit
+local-hostname: coreos.cloudinit
+manage_etc_hosts: false
+ssh_pwauth: True
+disable_root: True
+users:
+- default
+- name: cloud_coreos
+  shell: /bin/bash
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  lock_passwd: False
+  ssh-authorized-keys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEoqTYStJo8xcOPrYfTOI5uHIXvXIsrlfUoMtaaZb9Ok elliptic curve  
+- name: kubernetes
+  shell: /bin/bash
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  lock_passwd: False
+  ssh-authorized-keys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEoqTYStJo8xcOPrYfTOI5uHIXvXIsrlfUoMtaaZb9Ok elliptic curve 
+chpasswd:
+  list: |
+    cloud_coreos:coreos
+    kubernetes:kubernetes
+  expire: False
+runcmd:
+  - dnf update -y
+  - dnf install cockpit -y
+  - systemctl enable --now cockpit.socket ; systemctl start cockpit.service
+  #- ufw allow 9090/tcp
+  - echo "Server is UP" > /tmp/system_up
