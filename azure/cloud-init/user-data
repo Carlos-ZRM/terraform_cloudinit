@@ -1,0 +1,52 @@
+
+#cloud-config
+instance-id: ubuntu_cloudinit
+local-hostname: ubuntu.cloudinit
+manage_etc_hosts: false
+ssh_pwauth: True
+disable_root: True
+users:
+- default
+- name: cloud_ubuntu
+  shell: /bin/bash
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  lock_passwd: False
+  ssh-authorized-keys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEoqTYStJo8xcOPrYfTOI5uHIXvXIsrlfUoMtaaZb9Ok elliptic curve  
+- name: kubernetes
+  shell: /bin/bash
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  lock_passwd: False
+  ssh-authorized-keys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEoqTYStJo8xcOPrYfTOI5uHIXvXIsrlfUoMtaaZb9Ok elliptic curve 
+chpasswd:
+  list: |
+    cloud_ubuntu:ubuntu
+    kubernetes:kubernetes
+  expire: False
+
+write_files:
+- encoding: b64
+  content: |
+    CmN1cmwgaHR0cHM6Ly9hcHQucmVsZWFzZXMuaGFzaGljb3JwLmNvbS9ncGcgfCBncGcgLS1kZWFy
+    bW9yID4gaGFzaGljb3JwLmdwZwoKc3VkbyBpbnN0YWxsIC1vIHJvb3QgLWcgcm9vdCAtbSA2NDQg
+    aGFzaGljb3JwLmdwZyAvZXRjL2FwdC90cnVzdGVkLmdwZy5kLwoKc3VkbyBhcHQtYWRkLXJlcG9z
+    aXRvcnkgImRlYiBbYXJjaD0kKGRwa2cgLS1wcmludC1hcmNoaXRlY3R1cmUpXSBodHRwczovL2Fw
+    dC5yZWxlYXNlcy5oYXNoaWNvcnAuY29tIGZvY2FsIG1haW4iCgpzdWRvIGFwdCB1cGRhdGUKc3Vk
+    byBhcHQgaW5zdGFsbCB0ZXJyYWZvcm0=
+  owner: root:root
+  path: /usr/bin/install_terraform.sh
+  permissions: '0755'
+
+packages:
+  - git
+  - vim
+  - docker.io
+runcmd:
+  - apt update -y
+  - apt install cockpit -y
+  - apt install cockpit-podman -y
+  - systemctl enable --now cockpit.socket ; systemctl start cockpit.service
+  - ufw allow 9090/tcp
+  - /usr/bin/install_terraform.sh
+  - echo "Server is UP" > /tmp/system_up
